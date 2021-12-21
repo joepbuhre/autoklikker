@@ -84,9 +84,9 @@ function date_formatted(string $date, string $format = null)
                             </ul>
                         </div>
                         <div class="img-container row">
-                            <?php foreach (json_decode($result['bg_image'], true) as $image) : ?>
+                            <?php foreach (json_decode($result['bg_image'], true) as $key => $image) :?>
                                 <div class="col">
-                                    <a href="<?php echo $image ?>" class="js-smartphoto" data-group="'<?php $result['id'] ?>" data-caption="<?php echo $image ?>">
+                                    <a href="<?php echo $image ?>" class="js-smartphoto" data-group="'<?php echo $result['id'] ?>" data-caption="<?php echo $image ?>">
                                         <img src="<?php echo $image ?>" alt="">
                                     </a>
                                 </div>
