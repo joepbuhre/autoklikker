@@ -10,3 +10,4 @@ Steps to install
 6. run `node app.js`
 
 Congrats! You just responded on possible houses!
+Now you can navigate to that folder because of the index.php file in the folder and see the houses you responded on.
