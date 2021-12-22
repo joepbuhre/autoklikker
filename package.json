@@ -8,18 +8,10 @@
     "sqlite3": "^5.0.2"
   },
   "devDependencies": {
-    "gulp": "^4.0.2",
-    "gulp-cli": "^2.3.0",
-    "gulp-concat": "^2.6.1",
-    "gulp-minify": "^3.1.0",
-    "gulp-rename": "^2.0.0",
-    "gulp-sass": "^5.0.0",
-    "gulp-uglify": "^3.0.2",
     "sass": "^1.43.4"
-  },
+  }, 
   "name": "klikvoorwonenklikker",
-  "version": "1.0.0",
-  "main": "gulpfile.js",
+  "version": "1.2.0",
   "scripts": {
     "dev": "node dev.js",
     "build": "cp dev.js app.js"

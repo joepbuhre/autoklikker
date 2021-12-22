@@ -13,5 +13,5 @@ Congrats! You just responded on possible houses!
 Now you can navigate to that folder because of the index.php file in the folder and see the houses you responded on.
 
 ## Release Log
-### Version 0.2.0 
+### Version 1.2.0 
 - Support for sqlite database
