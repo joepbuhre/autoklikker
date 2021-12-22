@@ -9,12 +9,17 @@ foreach ($env as $en) {
 
 ?>
 <?php
+$choice = $_ENV['DB_CHOICE'];
 $servername = $_ENV['DB_HOST'];
 $username = $_ENV['DB_USER'];
 $password = $_ENV['DB_PASS'];
 $dbname = $_ENV['DB_DATABASE'];
 try {
-    $conn = new PDO("mysql:host=localhost:3306;dbname=$dbname", $username, '8yD1_vs6');
+    if($choice === 'mysql'){
+        $conn = new PDO("mysql:host=localhost:3306;dbname=$dbname", $username, '8yD1_vs6');
+    } else if ($choice === 'sqlite'){
+        $conn = new PDO("sqlite:". __DIR__ . "/database/autoklikker.db");
+    }
     // set the PDO error mode to exception
     $conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
