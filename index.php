@@ -31,7 +31,7 @@ $query = $conn->query("SELECT id,urls,count,created_at,bg_image FROM data WHERE 
 if($query === false){
     die("error with fetching from database");
 } else {
-    $res = $query->fetch();
+    $res = $query->fetchAll();
 }
 
 $last_updated = $conn->query("SELECT created_at,message FROM `data` ORDER BY created_at DESC LIMIT 1;")->fetch();
