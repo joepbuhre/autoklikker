@@ -3,7 +3,7 @@ const puppeteer = require('puppeteer');
 require('dotenv').config()
 
 const {addto_db} = require('./database/dbconfig.js')
-
+const {decrypt} = require('./password.js')
 
 function delay(time) {
     return new Promise(function(resolve) { 
@@ -11,6 +11,16 @@ function delay(time) {
     });
 }
 (async () => {
+    var password;
+
+    if(process.env.PASSWORD_ENC){
+        password = decrypt(process.env.PASSWORD_ENC)
+    } else if(process.env.PASSWORD) {
+        password = process.env.PASSWORD
+    } else{
+        throw new Error("No password")
+    }
+    console.log(password)
     // Time how long the script is going to take
     var start = performance.now()
 
@@ -38,7 +48,7 @@ function delay(time) {
 
     // Put in login data
     await page.type('#username', process.env.USERNAME)
-    await page.type('#password', process.env.PASSWORD)
+    await page.type('#password', password)
     
     await page.click('form[name="loginForm"] input[type="submit"]')
 

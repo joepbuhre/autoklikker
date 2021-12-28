@@ -5,13 +5,17 @@ Steps to install
 1. Clone into directory of your choice
 2. CD into directory
 3. run: `npm install`
-4. run: `cp .example.env .env`
-5. Edit .env and set variables as you need
-6. run `node app.js`
+5. run: `npm init`
+6. Edit .env and set remaining variables as you need
+7. run `node app.js`
 
 Congrats! You just responded on possible houses!
 Now you can navigate to that folder because of the index.php file in the folder and see the houses you responded on.
 
 ## Release Log
+### 1.3.0
+- Passwords are now encrypted with a secret key in `.env`
+- Added init and configuration plan
+
 ### Version 1.2.0 
 - Support for sqlite database
