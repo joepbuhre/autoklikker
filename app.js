@@ -20,7 +20,6 @@ function delay(time) {
     } else{
         throw new Error("No password")
     }
-    console.log(password)
     // Time how long the script is going to take
     var start = performance.now()
 

@@ -13,6 +13,9 @@ Congrats! You just responded on possible houses!
 Now you can navigate to that folder because of the index.php file in the folder and see the houses you responded on.
 
 ## Release Log
+### 1.3.1
+- Fixed small issues with .env file.
+
 ### 1.3.0
 - Passwords are now encrypted with a secret key in `.env`
 - Added init and configuration plan

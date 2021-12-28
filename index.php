@@ -27,7 +27,12 @@ try {
 }
 
 $query = $conn->query("SELECT id,urls,count,created_at,bg_image FROM data WHERE count > 0 ORDER BY created_at DESC");
-$res = $query->fetchAll();
+
+if($query === false){
+    die("error with fetching from database");
+} else {
+    $res = $query->fetch();
+}
 
 $last_updated = $conn->query("SELECT created_at,message FROM `data` ORDER BY created_at DESC LIMIT 1;")->fetch();
 

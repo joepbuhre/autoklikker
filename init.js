@@ -4,11 +4,6 @@ const { encrypt } = require('./password.js')
 const readline = require('readline');
 const chalk = require("chalk");
 
-function delay(time) {
-    return new Promise(function(resolve) {
-        setTimeout(resolve, time)
-    });
-}
 
 function askQuestion(query, muted = false) {
     const rl = readline.createInterface({
@@ -46,6 +41,6 @@ function askQuestion(query, muted = false) {
     await askQuestion("\nPress enter if you've saved it to your .env file")
 
     create_table()
-    
+
     console.log(`Table created. Run ${chalk.inverse('node app.js')} to test the new script`)
 })();

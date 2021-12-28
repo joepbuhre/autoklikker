@@ -48,7 +48,7 @@ const sqlite_createtable = (query = String) => {
     });
 
     db.run(`
-  CREATE TABLE IF NOT EXISTS '234` + process.env.DB_TABLE + `' (
+  CREATE TABLE IF NOT EXISTS '` + process.env.DB_TABLE + `' (
     id INTEGER PRIMARY KEY,
     urls TEXT DEFAULT NULL,
     count INTEGER NOT NULL,
