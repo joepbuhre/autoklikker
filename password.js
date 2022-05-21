@@ -30,16 +30,19 @@ class Encrypter {
 // Usage
 
 
-module.exports = {
-    encrypt: (password = String, secret_key = String) => {
-      if(process.env.SECRET_KEY){
-        
-      }
-      const encrypter = new Encrypter(process.env.SECRET_KEY)
-      return encrypter.encrypt(password)
-    },
-    decrypt: (encrypted_text = String) => {
-        const encrypter = new Encrypter(process.env.SECRET_KEY)
-        return encrypter.decrypt(encrypted_text)
-    }
+module.exports.encrypt = (password = String) => {
+    const encrypter = new Encrypter(process.env.SECRET_KEY)
+    return encrypter.encrypt(password)
+}
+module.exports.decrypt = (encrypted_text = String) => {
+    const encrypter = new Encrypter(process.env.SECRET_KEY)
+    return encrypter.decrypt(encrypted_text)
+}
+
+if(require.main === module) {
+    require('dotenv').config()
+
+    const password = process.argv[process.argv.length - 1]
+    const encryptedPassword = this.encrypt(password)
+    console.log(encryptedPassword)
 }

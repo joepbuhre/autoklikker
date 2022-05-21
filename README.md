@@ -7,10 +7,12 @@ Steps to install
 3. run: `npm install`
 5. run: `npm init`
 6. Edit .env and set remaining variables as you need
+7. Generate encrypted code by running `node password <your_password>`
 7. run `node app.js`
 
 Congrats! You just responded on possible houses!
 Now you can navigate to that folder because of the index.php file in the folder and see the houses you responded on.
+
 
 ## Release Log
 ### 1.3.1
