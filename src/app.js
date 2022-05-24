@@ -2,7 +2,7 @@
 const puppeteer = require('puppeteer');
 
 const { addto_db } = require('./config/dbconfig.js')
-const { decrypt } = require('../password.js');
+const { decrypt } = require('./modules/password.js');
 const { setPage, setBrowser } = require('./modules/page.js');
 const { querySelectorAll, safeClick, mvgmSlack } = require('./modules/helpers.js');
 const { slacknotify } = require('./modules/notify.js');
@@ -47,7 +47,7 @@ module.exports.KlikVoorWonen = async _ => {
     });
 
     // Put in login data
-    await page.type('#username', process.env.LOGIN_USERNAME)
+    await page.type('#username', process.env.KLIKVOORWONEN_LOGIN_USERNAME)
     await page.type('#password', password)
 
     await page.click('form[name="loginForm"] input[type="submit"]')
@@ -63,22 +63,32 @@ module.exports.KlikVoorWonen = async _ => {
     // Guess when the page is loaded. Mostly ~3 seconds
     const houses = await page.waitForSelector('.object-list-items-container')
 
-    const houseNodes = await querySelectorAll(page, '.object-list-items-container')
-    console.log(houseNodes)
-
     // Get the listings
     const data = await page.$$('section.list-item.ng-scope a[ng-click="goToDetails($event)"]')
 
-    const urls = [] // Empty array for the URLS on which you can respond
-    const images = [] // Empty array for the images
-
+    const info = []
     for (let i = 0; i < data.length; i++) {
-        // Check if you already have responded to the listing
-        const responded = (await (await data[i].getProperty('innerText')).jsonValue()).includes('Je hebt al gereageerd')
-        if (responded === false) {
-            urls.push(await (await data[i].getProperty('href')).jsonValue())
-        }
+        const house = data[i];
+        
+        const title = await house.$eval('.address-part.ng-binding', el => el.textContent),
+            id = await house.evaluate(node => node.parentElement.id),
+            price = await house.$eval('.prijs.ng-binding.ng-scope', el => el.textContent.trim()),
+            link = await house.evaluate(node => node.href),
+            image = await house.$eval('.object-afbeelding img', el => el.src)
+
+        info.push({
+            id: id,
+            data: JSON.stringify({
+                title: title,
+                price: price,
+                link: link,
+                image: image
+            })
+        })
     }
+    const insertedValues = await addto_db('autoklikker_klikvoorwonen', info)
+
+    const urls = insertedValues.map(house => JSON.parse(house.data)?.link)
 
     // Iterate over the URL's to submit
     for (let i = 0; i < urls.length; i++) {
@@ -109,46 +119,109 @@ module.exports.KlikVoorWonen = async _ => {
                 $el.click()
             }
         });
-        const bg_image = await page.evaluate(() => {
-            var regex = new RegExp(/([\w+]+\:\/\/)?([\w\d-]+\.)*[\w-]+[\.\:]\w+([\/\?\=\&\#\.]?[\w-]+)*\/?/gm)
-            const html = (window.getComputedStyle(document.querySelector("div.object-header-image.ng-scope")).getPropertyValue('background-image')).match(regex)[0]
-            return html
-        });
-        images.push(bg_image)
     }
     // Close the browser
     await browser.close();
 
-    // Initiate variables for confirmation message
-    var response = ''
-    total_time = Math.round(performance.now() - start) / 1000
-    urls_count = urls.length
-    urls_list = urls.join('\n- ')
 
-    if (urls_count > 0) {
-        response += `Responded on ${urls_count} possible houses.\nWhich are:\n- ${urls_list}`
-    } else {
-        response += `0 new possible houses. Nothing to do. Total response time was ${total_time}s`
+    if(insertedValues.length < 1) {
+        console.log('no values to add')
+        browser.close()
+        return
     }
 
-    console.log(response)
+    slacknotify(
+        mvgmSlack(
+            insertedValues.map(el => ({
+                ...JSON.parse(el.data)
+            }))
+        )
+    ).then(res => {
+        browser.close()
+    })
+    // const urls = [] // Empty array for the URLS on which you can respond
+    // const images = [] // Empty array for the images
 
-    const db_vars = {
-        urls: JSON.stringify(urls),
-        count: urls_count,
-        message: response,
-        bg_image: JSON.stringify(images)
-    }
-    console.log(db_vars)
+    // for (let i = 0; i < data.length; i++) {
+    //     // Check if you already have responded to the listing
+    //     const responded = (await (await data[i].getProperty('innerText')).jsonValue()).includes('Je hebt al gereageerd')
+    //     if (responded === false) {
+    //         urls.push(await (await data[i].getProperty('href')).jsonValue())
+    //     }
+    // }
 
-    addto_db(db_vars)
+    // // Iterate over the URL's to submit
+    // for (let i = 0; i < urls.length; i++) {
+    //     const url = urls[i];
+    //     await page.goto(url);
+    //     await page.waitForSelector('form[name="reactForm"] input[type="submit"]', {
+    //         visible: true,
+    //     });
+
+    //     // Submit the form ONLY if element exists
+    //     const formSubmit = await page.evaluate(() => {
+    //         const $el = document.querySelector('form[name="reactForm"] input[type="submit"]')
+    //         if ($el !== null && $el.value !== 'Verwijder reactie') {
+    //             $el.click()
+    //         } else {
+    //             return false
+    //         }
+    //     });
+    //     if (formSubmit === false) {
+    //         continue;
+    //     }
+    //     delay(1000)
+
+    //     // Confirm the confirmation popup. ('Huurtoeslag is niet geldig')
+    //     await page.evaluate(() => {
+    //         const $el = document.querySelector('.confirm-popup-content a.button.confirm-accept')
+    //         if ($el !== null) {
+    //             $el.click()
+    //         }
+    //     });
+    //     const bg_image = await page.evaluate(() => {
+    //         var regex = new RegExp(/([\w+]+\:\/\/)?([\w\d-]+\.)*[\w-]+[\.\:]\w+([\/\?\=\&\#\.]?[\w-]+)*\/?/gm)
+    //         const html = (window.getComputedStyle(document.querySelector("div.object-header-image.ng-scope")).getPropertyValue('background-image')).match(regex)[0]
+    //         return html
+    //     });
+    //     images.push(bg_image)
+    // }
+    // // Close the browser
+    // await browser.close();
+
+    // // Initiate variables for confirmation message
+    // var response = ''
+    // total_time = Math.round(performance.now() - start) / 1000
+    // urls_count = urls.length
+    // urls_list = urls.join('\n- ')
+
+    // if (urls_count > 0) {
+    //     response += `Responded on ${urls_count} possible houses.\nWhich are:\n- ${urls_list}`
+    // } else {
+    //     response += `0 new possible houses. Nothing to do. Total response time was ${total_time}s`
+    // }
+
+    // console.log(response)
+
+    // const db_vars = {
+    //     urls: JSON.stringify(urls),
+    //     count: urls_count,
+    //     message: response,
+    //     bg_image: JSON.stringify(images)
+    // }
+
+    // addto_db(db_vars)
 
 
 }
 
 module.exports.mvgm = async _ => {
     const config = {
-        args: ['--start-maximized'],
+        args: [
+            '--start-maximized',
+            '--window-position=-1920,0',
+            '--window-size=1920,1080'
+        ],
         headless: false
     }
 
@@ -202,15 +275,32 @@ module.exports.mvgm = async _ => {
                 }
             }))
         info.push({
-            title: title,
-            price: price,
-            link: link,
-            specs: specs,
-            image: image,
+            id: id,
+            data: JSON.stringify({
+                title: title,
+                price: price,
+                link: link,
+                specs: specs,
+                image: image,
+            })
         })
     }
+    console.log(info)
+
+    const insertedValues = await addto_db('autoklikker_mvgm',info)
+
+    if(insertedValues.length < 1) {
+        console.log('no values to add')
+        browser.close()
+        return
+    }
+
     slacknotify(
-        mvgmSlack(info)
+        mvgmSlack(
+            insertedValues.map(el => ({
+                ...JSON.parse(el.data)
+            }))
+        )
     ).then(res => {
         browser.close()
     })

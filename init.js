@@ -1,6 +1,6 @@
 const crypto = require('crypto')
-const { create_table } = require('./database/dbconfig.js')
-const { encrypt } = require('./password.js')
+const { create_table } = require('./src/config/dbconfig.js')
+const { encrypt } = require('./src/modules/password.js')
 const readline = require('readline');
 const chalk = require("chalk");
 

@@ -8,13 +8,14 @@ module.exports.querySelectorAll = async (page = puppeteer.Page, selector) => {
 }
 
 
-module.exports.mvgmSlack = (html = [{ title: String, price: String, link: String, specs: String, image: String }]) => {
+module.exports.mvgmSlack = (html = [{ title: String, price: String, link: String, specs: Array, image: String }]) => {
+    const date = new Date()
     const blocks = [
         {
 			type: "header",
 			text: {
 				type: "plain_text",
-				text: "Nieuwe huizen gevonden!",
+				text: `Nieuwe huizen gevonden! (${date.toLocaleString('nl-NL', {dateStyle: 'medium', timeStyle: 'short'})})`,
 			}
 		},{
         type: "section",
@@ -24,10 +25,16 @@ module.exports.mvgmSlack = (html = [{ title: String, price: String, link: String
         }
     }]
     html.forEach(item => {
-        const specs = item.specs.map(item => {
-            const entries = Object.entries(item)[0]
-            return `- *${entries[0]}:* ${entries[1]}`
-        })
+        let specs;
+        if(!Array.isArray(item.specs) || !(item.specs.length < 1) ) {
+            specs = ['']
+        } else {
+            specs = item.specs.map(item => {
+                const entries = Object.entries(item)[0]
+                return `- *${entries[0]}:* ${entries[1]}`
+            })
+        }
+        
 
         const markdown = `*${item.title}*\n\n${item.price}*\n${specs.join('\n')}\n\n<${item.link}|Bekijk dit huis>`
         blocks.push({
